@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using BLL.IService;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BLL
 {
@@ -7,7 +8,7 @@ namespace BLL
         public static IServiceCollection Configure(
             this IServiceCollection service)
         {
-
+            service.AddScoped<IImageService, IImageService>();
 
             return service;
         }

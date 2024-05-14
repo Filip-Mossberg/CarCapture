@@ -1,5 +1,6 @@
 
 using BLL;
+using Microsoft.Extensions.ML;
 
 namespace CarCapture
 {
@@ -15,6 +16,9 @@ namespace CarCapture
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddPredictionEnginePool<CarDetectorModel.ModelInput, CarDetectorModel.ModelOutput>()
+.FromFile("CarDetectorModel.mlnet");
 
             var app = builder.Build();
 
