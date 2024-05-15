@@ -1,8 +1,11 @@
-﻿using BLL.IService;
+﻿using BLL;
+using BLL.IService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.ML;
 using Microsoft.ML.Data;
+using Newtonsoft.Json;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 
 namespace CarCapture.Controller
 {
@@ -10,23 +13,20 @@ namespace CarCapture.Controller
     [ApiController]
     public class CarDetectorController
     {
-        private readonly IImageService imageService;
-        public CarDetectorController(IImageService _imageService)
+        private readonly ICarDetectorService _carDetectorService;
+        private readonly IImageService _imageService;
+        public CarDetectorController(ICarDetectorService carDetectorService, IImageService imageService)
         {
-            imageService = _imageService;
+            _carDetectorService = carDetectorService;
+            _imageService = imageService;
         }
 
-        [HttpPost("detect")]
-        public async Task<CarDetectorModel.ModelOutput> CarDetector(PredictionEnginePool<CarDetectorModel.ModelInput,
-            CarDetectorModel.ModelOutput> predictionEnginePool, string imagePath)
+        [HttpPost("Detect")]
+        public async Task<string> CarDetector(string imagePath)
         {
-            var image = MLImage.CreateFromFile(imagePath);
-            var input = new CarDetectorModel.ModelInput()
-            {
-                Image = image,
-            };
+            var result = await _carDetectorService.CarDetectorModel(imagePath);
 
-            return await Task.FromResult(predictionEnginePool.Predict(input));
+            return JsonConvert.SerializeObject(result);
         }
     }
 }

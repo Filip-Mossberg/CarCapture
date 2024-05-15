@@ -1,16 +1,25 @@
 ﻿using BLL.IService;
+using BLL.Service;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.ML;
 
 namespace BLL
 {
     public static class ConfigureServices
     {
         public static IServiceCollection Configure(
-            this IServiceCollection service)
+            this IServiceCollection services)
         {
-            service.AddScoped<IImageService, IImageService>();
+            services.AddScoped<ICarDetectorService, CarDetectorService>();
+            services.AddScoped<IImageService, ImageService>();
 
-            return service;
+            services.AddPredictionEnginePool<CarDetectorModel.ModelInput, CarDetectorModel.ModelOutput>()
+.FromFile("C:\\Users\\Joakim\\source\\repos\\CarCapture\\BLL\\CarDetectorModel.mlnet");
+
+            //service.AddPredictionEnginePool<CarDetectorModel.ModelInput, CarDetectorModel.ModelOutput>()
+            //    .FromFile("C:\\Users\\Joakim\\source\\repos\\CarCapture\\BLL\\CarDetectorModel.mlnet");
+
+            return services;
         }
     }
 }
