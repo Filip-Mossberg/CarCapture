@@ -23,21 +23,23 @@ namespace BLL.Service
 
             }
 
+            image.Save("C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage.Jpeg", System.Drawing.Imaging.ImageFormat.Jpeg);                  
+
             return image;
         }
 
         // Scales the result coordinates to fit the original image size
         private Rectangle ImageCoordinateScaling(int imageWidth, int imageHeight, Rectangle box)
         {
-            var xScale = imageWidth / 800;
-            var yScale = imageHeight / 600;
+            float xScale = (imageWidth / 800.0F);
+            float yScale = (imageHeight / 600.0F);
 
             Rectangle rectangle = new Rectangle()
             {
-                X = box.X * xScale,
-                Y = box.Y * yScale,
-                Width = box.Width * xScale,
-                Height = box.Height * yScale
+                X = (int)Math.Ceiling(box.X * xScale),
+                Y = (int)Math.Ceiling(box.Y * yScale),
+                Width = (int)Math.Ceiling(box.Width * xScale),
+                Height = (int)Math.Ceiling(box.Height * yScale)
             };
 
             return rectangle;

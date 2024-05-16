@@ -29,14 +29,21 @@ namespace BLL.Service
         {
             var boxList = new List<Rectangle>();
 
-            for (int i = 0; i < modelResult.PredictedBoundingBoxes.Length; i += 4)
+            for (int i = 0; i < modelResult.PredictedLabel.Count(); i += 4)
             {
+                // Coordinates for top left and bottom right corner of the rectangle
+                int x1 = (int)modelResult.PredictedBoundingBoxes[i];
+                int y1 = (int)modelResult.PredictedBoundingBoxes[i + 1];
+                int x2 = (int)modelResult.PredictedBoundingBoxes[i + 2];
+                int y2 = (int)modelResult.PredictedBoundingBoxes[i + 3];
+
                 Rectangle rectangle = new Rectangle()
                 {
+                    // Sets the top left coordinate (x, y) and then calculates the distance along the x and y axis to get the width and height. 
                     X = (int)modelResult.PredictedBoundingBoxes[i],
                     Y = (int)modelResult.PredictedBoundingBoxes[i + 1],
-                    Width = (int)modelResult.PredictedBoundingBoxes[i + 2],
-                    Height = (int)modelResult.PredictedBoundingBoxes[i + 3]
+                    Width = x2 - x1,
+                    Height = y2 - y1
                 };
 
                 boxList.Add(rectangle);
