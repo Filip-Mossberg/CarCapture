@@ -29,7 +29,7 @@ namespace BLL.Service
         {
             var boxList = new List<Rectangle>();
 
-            for (int i = 0; i < modelResult.PredictedLabel.Count(); i += 4)
+            for (int i = 0; i < modelResult.PredictedLabel.Count() * 4; i += 4)
             {
                 // Coordinates for top left and bottom right corner of the rectangle
                 int x1 = (int)modelResult.PredictedBoundingBoxes[i];
