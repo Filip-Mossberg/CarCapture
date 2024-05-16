@@ -1,6 +1,7 @@
 ﻿using BLL.IService;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Drawing;
 
 namespace CarCapture.Controller
 {
@@ -19,8 +20,10 @@ namespace CarCapture.Controller
         [HttpPost("Detect")]
         public async Task<string> CarDetector(string imagePath)
         {
-            var modelResult = await _carDetectorService.CarDetectorModel(imagePath);
-            var imageResult = await _imageService.DrawBoundingBoxes(imagePath, modelResult);
+            var image = await _imageService.ResizeAndPadImage(imagePath);
+
+            var modelResult = await _carDetectorService.CarDetectorModel(image);
+            var imageResult = await _imageService.DrawBoundingBoxes(image, modelResult);
 
             return JsonConvert.SerializeObject(modelResult);
         }

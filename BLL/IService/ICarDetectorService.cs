@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.ML;
+using Microsoft.ML.Data;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -10,6 +11,6 @@ namespace BLL.IService
 {
     public interface ICarDetectorService
     {
-        public Task<List<Rectangle>> CarDetectorModel(string imagePath);
+        public Task<List<Rectangle>> CarDetectorModel(Image image);
     }
 }
