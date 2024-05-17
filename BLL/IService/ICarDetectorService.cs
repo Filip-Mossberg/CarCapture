@@ -11,6 +11,6 @@ namespace BLL.IService
 {
     public interface ICarDetectorService
     {
-        public Task<List<Rectangle>> CarDetectorModel(Image image);
+        public Task<CarDetectorModel.ModelOutput> CarDetectorModel(Image image);
     }
 }
