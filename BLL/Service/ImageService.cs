@@ -5,7 +5,7 @@ namespace BLL.Service
 {
     public class ImageService : IImageService
     {
-        public async Task<Image> DrawBoundingBoxes(Image image, CarDetectorModel.ModelOutput modelResult)
+        public async Task<Image> DrawAndLabelDetections(Image image, CarDetectorModel.ModelOutput modelResult)
         {
             var modelFiltrationResult = await ModelResultFiltering(modelResult);
 
@@ -22,6 +22,11 @@ namespace BLL.Service
                     {
                         graphics.DrawRectangle(new Pen(Color.Orange, 2), modelFiltrationResult.BoxList[i]);
                     }
+
+                    graphics.DrawString(modelFiltrationResult.LabelList[i] + ": " + modelFiltrationResult.ScoreList[i],
+                        new Font("Arial", 14), new SolidBrush(Color.HotPink),
+                        modelFiltrationResult.TopLeftCoordinatesList[i + i],
+                        modelFiltrationResult.TopLeftCoordinatesList[i + i + 1] - 22);
                 }
             }
 
@@ -60,6 +65,7 @@ namespace BLL.Service
             var boxList = new List<Rectangle>();
             var labelList = new List<string>();
             var scoreList = new List<string>();
+            var topLeftCoordinatesList = new List<int>();
 
             // Loops through the predicted lables and creates a list of Rectangle objects for adding boundingboxes
             for (int i = 0; i < modelResult.PredictedLabel.Count() * 4; i += 4)
@@ -85,6 +91,8 @@ namespace BLL.Service
                     boxList.Add(rectangle);
                     labelList.Add(modelResult.PredictedLabel[i / 4].ToString());
                     scoreList.Add(modelResult.Score[i / 4].ToString());
+                    topLeftCoordinatesList.Add(x1);
+                    topLeftCoordinatesList.Add(y1);
                 }
             }
 
@@ -92,7 +100,8 @@ namespace BLL.Service
             {
                 BoxList = boxList,
                 LabelList = labelList,
-                ScoreList = scoreList
+                ScoreList = scoreList,
+                TopLeftCoordinatesList = topLeftCoordinatesList
             };
         }
     }

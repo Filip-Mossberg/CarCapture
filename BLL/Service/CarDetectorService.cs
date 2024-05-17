@@ -1,7 +1,6 @@
 ﻿using BLL.IService;
 using Microsoft.Extensions.ML;
 using Microsoft.ML.Data;
-using Models;
 using System.Drawing;
 using System.Drawing.Imaging;
 

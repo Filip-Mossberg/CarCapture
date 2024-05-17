@@ -23,7 +23,7 @@ namespace CarCapture.Controller
             var image = await _imageService.ResizeAndPadImage(imagePath);
 
             var modelResult = await _carDetectorService.CarDetectorModel(image);
-            var imageResult = await _imageService.DrawBoundingBoxes(image, modelResult);
+            var imageResult = await _imageService.DrawAndLabelDetections(image, modelResult);
 
             return JsonConvert.SerializeObject(modelResult);
         }

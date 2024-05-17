@@ -12,5 +12,6 @@ namespace Models
         public List<Rectangle> BoxList { get; set; }
         public List<string> LabelList { get; set; }
         public List<string> ScoreList { get; set; }
+        public List<int> TopLeftCoordinatesList { get; set; }
     }
 }
