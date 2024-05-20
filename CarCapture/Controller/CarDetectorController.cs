@@ -20,12 +20,19 @@ namespace CarCapture.Controller
         [HttpPost("Detect")]
         public async Task<string> CarDetector(string imagePath)
         {
-            var image = await _imageService.ResizeAndPadImage(imagePath);
+            try
+            {
+                var image = await _imageService.ResizeAndPadImage(imagePath);
 
-            var modelResult = await _carDetectorService.CarDetectorModel(image);
-            var imageResult = await _imageService.DrawAndLabelDetections(image, modelResult);
+                var modelResult = await _carDetectorService.CarDetectorModel(image);
+                var imageResult = await _imageService.DrawAndLabelDetections(image, modelResult);
 
-            return JsonConvert.SerializeObject(modelResult);
+                return JsonConvert.SerializeObject(modelResult);
+            }
+            catch (Exception)
+            {
+                throw new Exception("Something went wrong!");
+            }
         }
     }
 }

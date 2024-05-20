@@ -1,6 +1,7 @@
 ﻿using BLL.IService;
 using Models;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 namespace BLL.Service
 {
     public class ImageService : IImageService
@@ -29,6 +30,8 @@ namespace BLL.Service
                         modelFiltrationResult.TopLeftCoordinatesList[i + i + 1] - 22);
                 }
             }
+
+            var test = CreateImagesOfDetectedCars(image, modelFiltrationResult);
 
             image.Save("C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage.Jpeg", System.Drawing.Imaging.ImageFormat.Jpeg);
 
@@ -104,5 +107,40 @@ namespace BLL.Service
                 TopLeftCoordinatesList = topLeftCoordinatesList
             };
         }
+
+        private async Task<List<CarColor>> CreateImagesOfDetectedCars(Image image, ModelFiltrationResult modelFiltrationResult)
+        {
+            var carColorList = new List<CarColor>();
+
+            for (int i = 0; i < modelFiltrationResult.BoxList.Count; i++)
+            {
+                var bitMap = new Bitmap(modelFiltrationResult.BoxList[i].Width, modelFiltrationResult.BoxList[i].Height);
+
+                using (Graphics graphics = Graphics.FromImage(bitMap))
+                {
+                    graphics.DrawImage(image,
+                        new Rectangle(0, 0, bitMap.Width, bitMap.Height),
+                        new Rectangle(modelFiltrationResult.BoxList[i].X, modelFiltrationResult.BoxList[i].Y, modelFiltrationResult.BoxList[i].Width, modelFiltrationResult.BoxList[i].Height),
+                        GraphicsUnit.Pixel);
+
+                    CarColor carColor = new CarColor()
+                    {
+                        CarScore = modelFiltrationResult.ScoreList[i],
+                        Color = "Red"
+                    };
+
+                    bitMap.Save($"C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage{i}.Jpeg", System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                    carColorList.Add(carColor);
+                }
+            }
+
+            return carColorList;
+        }
+
+        //private async Task<string> getDominantImageColor(Image image)
+        //{
+
+        //}
     }
 }
