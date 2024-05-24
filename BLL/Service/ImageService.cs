@@ -1,12 +1,12 @@
 ﻿using BLL.IService;
 using Models;
 using System.Drawing;
-using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 namespace BLL.Service
 {
     public class ImageService : IImageService
     {
-        public async Task<Image> DrawAndLabelDetections(Image image, CarDetectorModel.ModelOutput modelResult)
+        public async Task<CarDetectorResult> DrawAndLabelDetections(Image image, CarDetectorModel.ModelOutput modelResult)
         {
             var modelFiltrationResult = await ModelResultFiltering(modelResult);
 
@@ -31,11 +31,15 @@ namespace BLL.Service
                 }
             }
 
-            var test = CreateImagesOfDetectedCars(image, modelFiltrationResult);
+            // Remove this later, just for testing purposes
+            image.Save("C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage.Jpeg", ImageFormat.Jpeg);
 
-            image.Save("C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage.Jpeg", System.Drawing.Imaging.ImageFormat.Jpeg);
+            var Base64Image = await ImageToBase64(image);
 
-            return image;
+            return new CarDetectorResult()
+            {
+                CarDetectorModelImage = Base64Image
+            };
         }
 
         public async Task<Image> ResizeAndPadImage(string imagePath, int targetWidth = 800, int targetHeight = 600)
@@ -63,7 +67,7 @@ namespace BLL.Service
             return resizedImage;
         }
 
-        private async Task<ModelFiltrationResult> ModelResultFiltering(CarDetectorModel.ModelOutput modelResult)
+        public async Task<ModelFiltrationResult> ModelResultFiltering(CarDetectorModel.ModelOutput modelResult)
         {
             var boxList = new List<Rectangle>();
             var labelList = new List<string>();
@@ -108,10 +112,8 @@ namespace BLL.Service
             };
         }
 
-        private async Task<List<CarColor>> CreateImagesOfDetectedCars(Image image, ModelFiltrationResult modelFiltrationResult)
+        private async void CreateImagesOfDetectedCars(Image image, ModelFiltrationResult modelFiltrationResult)
         {
-            var carColorList = new List<CarColor>();
-
             for (int i = 0; i < modelFiltrationResult.BoxList.Count; i++)
             {
                 var bitMap = new Bitmap(modelFiltrationResult.BoxList[i].Width, modelFiltrationResult.BoxList[i].Height);
@@ -123,24 +125,19 @@ namespace BLL.Service
                         new Rectangle(modelFiltrationResult.BoxList[i].X, modelFiltrationResult.BoxList[i].Y, modelFiltrationResult.BoxList[i].Width, modelFiltrationResult.BoxList[i].Height),
                         GraphicsUnit.Pixel);
 
-                    CarColor carColor = new CarColor()
-                    {
-                        CarScore = modelFiltrationResult.ScoreList[i],
-                        Color = "Red"
-                    };
-
                     bitMap.Save($"C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage{i}.Jpeg", System.Drawing.Imaging.ImageFormat.Jpeg);
-
-                    carColorList.Add(carColor);
                 }
             }
-
-            return carColorList;
         }
+        private async Task<string> ImageToBase64(Image image)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                image.Save(ms, ImageFormat.Jpeg);
+                byte[] imageBytes = ms.ToArray();
 
-        //private async Task<string> getDominantImageColor(Image image)
-        //{
-
-        //}
+                return Convert.ToBase64String(imageBytes);
+            }
+        }
     }
 }

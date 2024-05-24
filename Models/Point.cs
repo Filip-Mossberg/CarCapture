@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class CarColor
+    public class Point
     {
-        public string CarScore { get; set; }
-        public string Color { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
     }
 }
