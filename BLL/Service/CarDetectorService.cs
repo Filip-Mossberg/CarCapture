@@ -13,6 +13,7 @@ namespace BLL.Service
         {
             _predictionEnginePool = predictionEnginePool;
         }
+
         public async Task<CarDetectorModel.ModelOutput> CarDetectorModel(Image image)
         {
             var mlImage = ConvertToMlImage(image);
