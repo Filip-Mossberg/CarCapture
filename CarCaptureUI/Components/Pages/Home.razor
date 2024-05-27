@@ -1,12 +1,77 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 @using Models;
 
-<PageTitle>Home</PageTitle>
+<PageTitle>CarCapture</PageTitle>
 
-<h1>Hello Blazor Users!</h1>
+<form class="container" id="imageForm" @onsubmit="HandleSubmit">
+    <div class="form-group">
+        <label for="imageInput" id="customeImageUpload"><b id="inputText">Upload car image</b></label>
+        <input type="file" id="imageInput" @onchange="HandleFileChange">
+    </div>
 
-Welcome to your new app.
+    @{
+        if(loading)
+        {
+            <div id="loading">
+                <img src="images/Loading.gif" />
+            </div>
+        }
+        else if(test == 2)
+        {
+            <div id="formSubmitEmpty" @onclick="Test">
+                <b>Analyze</b>
+            </div>
+        }
+        else
+        {
+            <button type="submit" id="formSubmit">
+                <b>Analyze</b>
+            </button>
+        }
+    }
+</form>
+
+<div class="container bg-primary">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Car</th>
+                <th scope="col">Color</th>
+                <th scope="col">License Plate</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>0.9732642</td>
+                <td>@test</td>
+                <td>@inputImage</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 @code {
-    
+    int test;
+    bool loading = true;
+    string inputImage;
+
+    private async Task HandleSubmit(EventArgs e)
+    {
+        if (!string.IsNullOrEmpty(inputImage))
+        {
+            loading = true;
+
+        }
+    }
+
+    private void HandleFileChange(ChangeEventArgs e)
+    {
+        inputImage = e.Value.ToString();
+    }
+
+    public void Test()
+    {
+        test += 2;
+    }
 }
