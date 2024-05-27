@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLL", "BLL\BLL.csproj", "{4B236FAC-2A65-4F15-8C70-39DBE256AA92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarCaptureUI", "CarCaptureUI\CarCaptureUI.csproj", "{E52A8C94-E084-4F9D-900B-E6948E6F416E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarCaptureUI", "CarCaptureUI\CarCaptureUI.csproj", "{E52A8C94-E084-4F9D-900B-E6948E6F416E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

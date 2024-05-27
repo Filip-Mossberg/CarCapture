@@ -1,4 +1,5 @@
-﻿using BLL.IService;
+﻿using BLL;
+using BLL.IService;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Newtonsoft.Json;
@@ -11,22 +12,26 @@ namespace CarCapture.Controller
     {
         private readonly ICarDetectorService _carDetectorService;
         private readonly IImageService _imageService;
-        public CarDetectorController(ICarDetectorService carDetectorService, IImageService imageService)
+        private readonly IColorClassificationService _colorClassificationService;
+        public CarDetectorController(ICarDetectorService carDetectorService, IImageService imageService, IColorClassificationService colorClassificationService)
         {
             _carDetectorService = carDetectorService;
             _imageService = imageService;
+            _colorClassificationService = colorClassificationService;
         }
 
         [HttpPost("Detect")]
-        public async Task<CarDetectorResult> CarDetector(string imagePath)
+        public async Task<CarColorClassificationModel.ModelOutput> CarDetector(string imagePath)
         {
             try
             {
-                var image = await _imageService.ResizeAndPadImage(imagePath);
-                var modelResult = await _carDetectorService.CarDetectorModel(image);
-                var imageResult = await _imageService.DrawAndLabelDetections(image, modelResult);
+                //var image = await _imageService.ResizeAndPadImage(imagePath);
+                //var modelResult = await _carDetectorService.CarDetectorModel(image);
+                //var imageResult = await _imageService.DrawAndLabelDetections(image, modelResult);
 
-                return imageResult;
+                var color = await _colorClassificationService.ColorClassificationModel(imagePath);
+
+                return color;
             }
             catch (Exception)
             {

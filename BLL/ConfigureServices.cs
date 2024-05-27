@@ -12,9 +12,13 @@ namespace BLL
         {
             services.AddScoped<ICarDetectorService, CarDetectorService>();
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IColorClassificationService, ColorClassificationService>();
 
             services.AddPredictionEnginePool<CarDetectorModel.ModelInput, CarDetectorModel.ModelOutput>()
 .FromFile("C:\\Users\\Joakim\\source\\repos\\CarCapture\\BLL\\CarDetectorModel.mlnet");
+
+            services.AddPredictionEnginePool<CarColorClassificationModel.ModelInput, CarColorClassificationModel.ModelOutput>()
+    .FromFile("CarColorClassificationModel.mlnet");
 
             return services;
         }
