@@ -18,7 +18,7 @@ namespace BLL
 .FromFile("C:\\Users\\Joakim\\source\\repos\\CarCapture\\BLL\\CarDetectorModel.mlnet");
 
             services.AddPredictionEnginePool<CarColorClassificationModel.ModelInput, CarColorClassificationModel.ModelOutput>()
-    .FromFile("CarColorClassificationModel.mlnet");
+    .FromFile("C:\\Users\\Joakim\\source\\repos\\CarCapture\\BLL\\CarColorClassificationModel.mlnet");
 
             return services;
         }

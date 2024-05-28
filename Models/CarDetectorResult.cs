@@ -8,6 +8,7 @@ namespace Models
 {
     public class CarDetectorResult
     {
-        public string CarDetectorModelImage { get; set; }
+        public string Image { get; set; }
+        public List<CarColorResult> ColorList { get; set; }
     }
 }

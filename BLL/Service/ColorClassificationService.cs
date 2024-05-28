@@ -1,12 +1,6 @@
 ﻿using BLL.IService;
 using Microsoft.Extensions.ML;
-using Microsoft.ML.Vision;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Models;
 
 namespace BLL.Service
 {
@@ -18,14 +12,29 @@ namespace BLL.Service
             _predictionEnginePool = predictionEnginePool;
         }
 
-        public async Task<CarColorClassificationModel.ModelOutput> ColorClassificationModel(string imagePath)
+        public async Task<List<CarColorResult>> ColorClassificationModel(List<ColorClassificationInput> classificationInput)
         {
-            var input = new CarColorClassificationModel.ModelInput()
-            {
-                ImageSource = File.ReadAllBytes(imagePath),
-            };
+            var predictedColorResult = new List<CarColorResult>();
 
-            return await Task.FromResult(_predictionEnginePool.Predict(input));
+            foreach (var obj in classificationInput)
+            {
+                var input = new CarColorClassificationModel.ModelInput()
+                {
+                    ImageSource = obj.Image
+                };
+
+                var colorResult = await Task.FromResult(_predictionEnginePool.Predict(input));
+
+                var carColorResult = new CarColorResult()
+                {
+                    CarScore = obj.Car,
+                    Color = colorResult.PredictedLabel
+                };
+
+                predictedColorResult.Add(carColorResult);   
+            }
+
+            return predictedColorResult;
         }
     }
 }

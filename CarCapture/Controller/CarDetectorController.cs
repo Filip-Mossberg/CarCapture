@@ -21,17 +21,25 @@ namespace CarCapture.Controller
         }
 
         [HttpPost("Detect")]
-        public async Task<CarColorClassificationModel.ModelOutput> CarDetector(string imagePath)
+        public async Task<CarDetectorResult> CarDetector(string imagePath)
         {
             try
             {
-                //var image = await _imageService.ResizeAndPadImage(imagePath);
-                //var modelResult = await _carDetectorService.CarDetectorModel(image);
-                //var imageResult = await _imageService.DrawAndLabelDetections(image, modelResult);
+                var image = await _imageService.ResizeAndPadImage(imagePath);
+                var modelResult = await _carDetectorService.CarDetectorModel(image);
+                var modelResultFiltered = await _imageService.ModelResultFiltering(modelResult);
+                var colorClassificationInput = await _imageService.CreateImagesOfDetectedCars(image, modelResultFiltered);
+                var colorClassificationResult = await _colorClassificationService.ColorClassificationModel(colorClassificationInput);
+                var imageResult = await _imageService.DrawAndLabelDetections(image, modelResultFiltered);
 
-                var color = await _colorClassificationService.ColorClassificationModel(imagePath);
 
-                return color;
+                var carDetectorResult = new CarDetectorResult()
+                {
+                    ColorList = colorClassificationResult,
+                    Image = imageResult
+                };
+
+                return carDetectorResult;
             }
             catch (Exception)
             {

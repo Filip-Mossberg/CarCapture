@@ -9,34 +9,25 @@ namespace BLL.Service
     public class CarDetectorService : ICarDetectorService
     {
         private readonly PredictionEnginePool<CarDetectorModel.ModelInput, CarDetectorModel.ModelOutput> _predictionEnginePool;
-        public CarDetectorService(PredictionEnginePool<CarDetectorModel.ModelInput, CarDetectorModel.ModelOutput> predictionEnginePool)
+        private readonly IImageService _imageService;
+        public CarDetectorService(PredictionEnginePool<CarDetectorModel.ModelInput, CarDetectorModel.ModelOutput> predictionEnginePool, IImageService imageService)
         {
             _predictionEnginePool = predictionEnginePool;
+            _imageService = imageService;
         }
 
         public async Task<CarDetectorModel.ModelOutput> CarDetectorModel(Image image)
         {
-            var mlImage = ConvertToMlImage(image);
+            var mlImage = _imageService.ConvertToMlImage(image);
 
             var input = new CarDetectorModel.ModelInput()
             {
-                Image = mlImage,
+                Image = mlImage
             };
 
             var modelResult = await Task.FromResult(_predictionEnginePool.Predict(input));
 
             return modelResult;
-        }
-
-        private static MLImage ConvertToMlImage(Image image)
-        {
-            MemoryStream stream = new MemoryStream();
-
-            image.Save(stream, ImageFormat.Jpeg);
-
-            stream.Position = 0;
-
-            return MLImage.CreateFromStream(stream);
         }
     }
 }

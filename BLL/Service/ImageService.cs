@@ -1,4 +1,5 @@
 ﻿using BLL.IService;
+using Microsoft.ML.Data;
 using Models;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -10,10 +11,8 @@ namespace BLL.Service
         /// Method for drawing detections and adding lable text such as score to the image. For now it also implements methods
         /// ModelResultFiltering for filtering the incoming ModelOutput data and ImageToBase64. 
         /// </summary>
-        public async Task<CarDetectorResult> DrawAndLabelDetections(Image image, CarDetectorModel.ModelOutput modelResult)
+        public async Task<string> DrawAndLabelDetections(Image image, ModelFiltrationResult modelFiltrationResult)
         {
-            var modelFiltrationResult = await ModelResultFiltering(modelResult);
-
             // Adding label and rectangle boundingbox on given coordinates
             using (Graphics graphics = Graphics.FromImage(image))
             {
@@ -38,12 +37,7 @@ namespace BLL.Service
             // Remove this later, just for testing purposes
             image.Save("C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage.Jpeg", ImageFormat.Jpeg);
 
-            var Base64Image = await ImageToBase64(image);
-
-            return new CarDetectorResult()
-            {
-                CarDetectorModelImage = Base64Image
-            };
+            return ImageToBase64(image);
         }
 
         /// <summary>
@@ -126,25 +120,58 @@ namespace BLL.Service
         /// <summary>
         /// Method for creating new images for each detected car area.
         /// </summary>
-        private async void CreateImagesOfDetectedCars(Image image, ModelFiltrationResult modelFiltrationResult)
+        public async Task<List<ColorClassificationInput>> CreateImagesOfDetectedCars(Image image, ModelFiltrationResult modelFiltrationResult)
         {
+            var result = new List<ColorClassificationInput>();
+
             for (int i = 0; i < modelFiltrationResult.BoxList.Count; i++)
             {
-                var bitMap = new Bitmap(modelFiltrationResult.BoxList[i].Width, modelFiltrationResult.BoxList[i].Height);
-
-                using (Graphics graphics = Graphics.FromImage(bitMap))
+                if (modelFiltrationResult.LabelList[i] == "Car")
                 {
-                    graphics.DrawImage(image,
-                        new Rectangle(0, 0, bitMap.Width, bitMap.Height),
-                        new Rectangle(modelFiltrationResult.BoxList[i].X, modelFiltrationResult.BoxList[i].Y, modelFiltrationResult.BoxList[i].Width, modelFiltrationResult.BoxList[i].Height),
-                        GraphicsUnit.Pixel);
+                    var bitMap = new Bitmap(modelFiltrationResult.BoxList[i].Width, modelFiltrationResult.BoxList[i].Height);
 
-                    bitMap.Save($"C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage{i}.Jpeg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                    using (Graphics graphics = Graphics.FromImage(bitMap))
+                    {
+                        graphics.DrawImage(image,
+                            new Rectangle(0, 0, bitMap.Width, bitMap.Height),
+                            new Rectangle(modelFiltrationResult.BoxList[i].X, modelFiltrationResult.BoxList[i].Y, modelFiltrationResult.BoxList[i].Width, modelFiltrationResult.BoxList[i].Height),
+                            GraphicsUnit.Pixel);
+
+                        // Remove this later!
+                        bitMap.Save($"C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage{i}.Jpeg", ImageFormat.Jpeg);
+                    }
+
+                    var colorClassificationInput = new ColorClassificationInput()
+                    {
+                        Image = ImageToByte(bitMap),
+                        Car = modelFiltrationResult.ScoreList[i]
+                    };
+
+                    result.Add(colorClassificationInput);
                 }
             }
+
+            return result;
         }
 
-        private async Task<string> ImageToBase64(Image image)
+        public static byte[] ImageToByte(Image image)
+        {
+            ImageConverter converter = new ImageConverter();
+            return (byte[])converter.ConvertTo(image, typeof(byte[]));
+        }
+
+        public MLImage ConvertToMlImage(Image image)
+        {
+            MemoryStream stream = new MemoryStream();
+
+            image.Save(stream, ImageFormat.Jpeg);
+
+            stream.Position = 0;
+
+            return MLImage.CreateFromStream(stream);
+        }
+
+        private static string ImageToBase64(Image image)
         {
             using (MemoryStream ms = new MemoryStream())
             {

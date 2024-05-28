@@ -6,7 +6,10 @@ namespace BLL.IService
 {
     public interface IImageService
     {
-        public Task<CarDetectorResult> DrawAndLabelDetections(Image image, CarDetectorModel.ModelOutput modelResult);
+        public Task<string> DrawAndLabelDetections(Image image, ModelFiltrationResult modelFiltrationResult);
         public Task<Image> ResizeAndPadImage(string imagepath, int targetWidth = 800, int targetHeight = 600);
+        public Task<ModelFiltrationResult> ModelResultFiltering(CarDetectorModel.ModelOutput modelResult);
+        public Task<List<ColorClassificationInput>> CreateImagesOfDetectedCars(Image image, ModelFiltrationResult modelFiltrationResult);
+        public MLImage ConvertToMlImage(Image image);
     }
 }
