@@ -44,10 +44,8 @@ namespace BLL.Service
         /// Method for Resizing the incoming image before it is used inside the CarDetectorModel.
         /// We Resize so its easier to draw out borderboxes afterwards. 
         /// </summary>
-        public async Task<Image> ResizeAndPadImage(string imagePath, int targetWidth = 800, int targetHeight = 600)
+        public async Task<Image> ResizeAndPadImage(Bitmap originalImage, int targetWidth = 800, int targetHeight = 600)
         {
-            Image originalImage = Image.FromFile(imagePath);
-
             // Calculates scale to fit image within the target size while preserving aspect ratio
             float scale = Math.Min((float)targetWidth / originalImage.Width, (float)targetHeight / originalImage.Height);
 
@@ -180,6 +178,20 @@ namespace BLL.Service
 
                 return Convert.ToBase64String(imageBytes);
             }
+        }
+
+        public async Task<Bitmap> Base64ToBitmap(string base64Image)
+        {
+            var base64Data = base64Image.Split(',')[1];
+            var imageBytes = Convert.FromBase64String(base64Data);
+
+            Bitmap bitmap;
+            using (var ms = new MemoryStream(imageBytes))
+            {
+                bitmap = new Bitmap(ms);
+            }
+
+            return bitmap;
         }
     }
 }

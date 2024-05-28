@@ -11,23 +11,23 @@
     </div>
 
     @{
-        if(loading)
+        if(!loading)
         {
             <div id="loading">
                 <img src="images/Loading.gif" />
             </div>
         }
-        else if(test == 2)
-        {
-            <div id="formSubmitEmpty" @onclick="Test">
-                <b>Analyze</b>
-            </div>
-        }
-        else
+        else if(!string.IsNullOrEmpty(inputImage))
         {
             <button type="submit" id="formSubmit">
                 <b>Analyze</b>
             </button>
+        }
+        else
+        {
+            <div id="formSubmitEmpty">
+                <b>Analyze</b>
+            </div>
         }
     }
 </form>
@@ -42,19 +42,38 @@
             </tr>
         </thead>
         <tbody>
+            @{
+                // if(result.ColorList != null)
+                // {
+                //     foreach (var item in result.ColorList)
+                //     {
+                //         <tr>
+                //             <td>
+                //                 @item.CarScore
+                //             </td>
+                //             <td>
+                //                 @item.Color
+                //             </td>
+                //         </tr>
+                //     }
+                // }
+            }
+
             <tr>
-                <td>0.9732642</td>
-                <td>@test</td>
-                <td>@inputImage</td>
+                <td>
+                    @inputImage
+                </td>
             </tr>
         </tbody>
     </table>
 </div>
 
 @code {
-    int test;
     bool loading = true;
     string inputImage;
+
+    public CarDetectorResult result;
+    public HttpClient httpClient = new HttpClient();
 
     private async Task HandleSubmit(EventArgs e)
     {
@@ -62,16 +81,24 @@
         {
             loading = true;
 
+            var content = new StringContent($"\"{inputImage}\"", System.Text.Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync("https://localhost:7123/api/CarDetector/Detect", content);
+
+            if(response.IsSuccessStatusCode)
+            {
+                result = await response.Content.ReadFromJsonAsync<CarDetectorResult>();
+            }
+            else
+            {
+                // Error
+            }
+
+            loading = false;
         }
     }
 
     private void HandleFileChange(ChangeEventArgs e)
     {
         inputImage = e.Value.ToString();
-    }
-
-    public void Test()
-    {
-        test += 2;
     }
 }
