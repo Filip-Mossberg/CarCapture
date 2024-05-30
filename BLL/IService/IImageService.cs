@@ -11,6 +11,6 @@ namespace BLL.IService
         public Task<ModelFiltrationResult> ModelResultFiltering(CarDetectorModel.ModelOutput modelResult);
         public Task<List<ColorClassificationInput>> CreateImagesOfDetectedCars(Image image, ModelFiltrationResult modelFiltrationResult);
         public MLImage ConvertToMlImage(Image image);
-        public Task<Bitmap> Base64ToBitmap(string base64Image);
+        public Task<Bitmap> BytearrayToBitmap(byte[] imageBytes);
     }
 }

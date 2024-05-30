@@ -1,9 +1,6 @@
-﻿using BLL;
-using BLL.IService;
+﻿using BLL.IService;
 using Microsoft.AspNetCore.Mvc;
 using Models;
-using Newtonsoft.Json;
-using System.Drawing;
 
 namespace CarCapture.Controller
 {
@@ -22,12 +19,12 @@ namespace CarCapture.Controller
         }
 
         [HttpPost("Detect")]
-        public async Task<CarDetectorResult> CarDetector(string imageInput)
+        public async Task<CarDetectorResult> CarDetector([FromBody] byte[] imageBytes)
         {
             try
             {
                 // Event Pipeline
-                var bitmapImage = await _imageService.Base64ToBitmap(imageInput);
+                var bitmapImage = await _imageService.BytearrayToBitmap(imageBytes);
                 var image = await _imageService.ResizeAndPadImage(bitmapImage);
                 var modelResult = await _carDetectorService.CarDetectorModel(image);
                 var modelResultFiltered = await _imageService.ModelResultFiltering(modelResult);
@@ -43,7 +40,7 @@ namespace CarCapture.Controller
 
                 return carDetectorResult;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw new Exception("Something went wrong!");
             }

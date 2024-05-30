@@ -1,36 +1,40 @@
 ﻿@page "/"
-@rendermode InteractiveServer
+@using BLL.IService
 @using Models;
+@inject ILogger<Home> Logger
+@rendermode InteractiveServer
+@inject ICarDetectorUIService _carDetectorUIService
 
 <PageTitle>CarCapture</PageTitle>
 
-<form class="container" id="imageForm" @onsubmit="HandleSubmit">
+<div class="container" id="imageForm">
     <div class="form-group">
         <label for="imageInput" id="customeImageUpload"><b id="inputText">Upload car image</b></label>
-        <input type="file" id="imageInput" @onchange="HandleFileChange">
+        <InputFile id="imageInput" OnChange="HandleFileChange" />
     </div>
-
     @{
-        if(!loading)
-        {
-            <div id="loading">
-                <img src="images/Loading.gif" />
-            </div>
-        }
-        else if(!string.IsNullOrEmpty(inputImage))
-        {
-            <button type="submit" id="formSubmit">
-                <b>Analyze</b>
-            </button>
-        }
-        else
+        if (!isSelected && !isLoading)
         {
             <div id="formSubmitEmpty">
                 <b>Analyze</b>
             </div>
         }
+
+        if (isSelected && !isLoading)
+        {
+            <button type="button" id="formSubmit" @onclick="HandleSubmit">
+                <b>Analyze</b>
+            </button>
+        }
+
+        if(isLoading)
+        {
+            <div id="loading">
+                <img src="images/Loading.gif" />
+            </div>
+        }
     }
-</form>
+</div>
 
 <div class="container bg-primary">
     <table class="table">
@@ -43,6 +47,10 @@
         </thead>
         <tbody>
             @{
+                // if(isLoading)
+                // {
+                //     HandleSubmit();
+                // }
                 // if(result.ColorList != null)
                 // {
                 //     foreach (var item in result.ColorList)
@@ -61,7 +69,9 @@
 
             <tr>
                 <td>
-                    @inputImage
+                    <p>@isLoading</p>
+                    <p>@imageBytes</p>
+                    <p>@isSelected</p>
                 </td>
             </tr>
         </tbody>
@@ -69,36 +79,49 @@
 </div>
 
 @code {
-    bool loading = true;
-    string inputImage;
+    public bool isLoading;
+    public bool isSelected { get; set; }
+
+    public byte[] imageBytes { get; set; }
 
     public CarDetectorResult result;
-    public HttpClient httpClient = new HttpClient();
 
-    private async Task HandleSubmit(EventArgs e)
+    private async Task HandleButtonClick()
     {
-        if (!string.IsNullOrEmpty(inputImage))
-        {
-            loading = true;
-
-            var content = new StringContent($"\"{inputImage}\"", System.Text.Encoding.UTF8, "application/json");
-            var response = await httpClient.PostAsync("https://localhost:7123/api/CarDetector/Detect", content);
-
-            if(response.IsSuccessStatusCode)
-            {
-                result = await response.Content.ReadFromJsonAsync<CarDetectorResult>();
-            }
-            else
-            {
-                // Error
-            }
-
-            loading = false;
-        }
+        await StartLoading();
+        await InvokeAsync(StateHasChanged);
+        await HandleSubmit();
     }
 
-    private void HandleFileChange(ChangeEventArgs e)
+    private async Task HandleSubmit()
     {
-        inputImage = e.Value.ToString();
+        isLoading = true;
+        StateHasChanged();
+
+        // Issue https://github.com/dotnet/aspnetcore/issues/22286
+        await Task.Delay(1);
+
+        if (imageBytes != null)
+        {
+            Console.WriteLine("Before");
+            result = await _carDetectorUIService.CarDetector(imageBytes);
+            Console.WriteLine(result.ColorList);
+        }
+
+        isLoading = false;
+    }
+
+    private async Task StartLoading()
+    {
+        isLoading = true;
+    }
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        MemoryStream ms = new MemoryStream();
+        await e.File.OpenReadStream().CopyToAsync(ms);
+        imageBytes = ms.ToArray();
+
+        isSelected = true;
     }
 }

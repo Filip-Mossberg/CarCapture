@@ -180,10 +180,9 @@ namespace BLL.Service
             }
         }
 
-        public async Task<Bitmap> Base64ToBitmap(string base64Image)
+        public async Task<Bitmap> BytearrayToBitmap(byte[] imageBytes)
         {
-            var base64Data = base64Image.Split(',')[1];
-            var imageBytes = Convert.FromBase64String(base64Data);
+            Console.WriteLine("Fromconvertion" + imageBytes.Length);
 
             Bitmap bitmap;
             using (var ms = new MemoryStream(imageBytes))
