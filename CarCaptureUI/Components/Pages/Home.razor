@@ -4,30 +4,37 @@
 @inject ILogger<Home> Logger
 @rendermode InteractiveServer
 @inject ICarDetectorUIService _carDetectorUIService
+@inject IJSRuntime JS
 
 <PageTitle>CarCapture</PageTitle>
 
 <div class="container" id="imageForm">
     <div class="form-group">
-        <label for="imageInput" id="customeImageUpload"><b id="inputText">Upload car image</b></label>
-        <InputFile id="imageInput" OnChange="HandleFileChange" />
+        <label for="imageInput" id="customeImageUpload">
+            <b id="titleLabel">Upload car image</b>
+            @{
+                if (!string.IsNullOrEmpty(fileInputLabel))
+                {
+                    <b id="fileLabel">@fileInputLabel</b>
+                }
+            }
+        </label>
+        <InputFile id="imageInput" OnChange="HandleFileChange" style="display:none;"/>
     </div>
     @{
         if (!isSelected && !isLoading)
         {
             <div id="formSubmitEmpty">
-                <b>Analyze</b>
+                <b>Analyze <i class="fa-brands fa-searchengin"></i></b>
             </div>
         }
-
-        if (isSelected && !isLoading)
+        else if (isSelected && !isLoading)
         {
             <button type="button" id="formSubmit" @onclick="HandleSubmit">
-                <b>Analyze</b>
+                <b>Analyze <i class="fa-brands fa-searchengin"></i></b>
             </button>
         }
-
-        if(isLoading)
+        else
         {
             <div id="loading">
                 <img src="images/Loading.gif" />
@@ -36,62 +43,51 @@
     }
 </div>
 
-<div class="container bg-primary">
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Car</th>
-                <th scope="col">Color</th>
-                <th scope="col">License Plate</th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                // if(isLoading)
-                // {
-                //     HandleSubmit();
-                // }
-                // if(result.ColorList != null)
-                // {
-                //     foreach (var item in result.ColorList)
-                //     {
-                //         <tr>
-                //             <td>
-                //                 @item.CarScore
-                //             </td>
-                //             <td>
-                //                 @item.Color
-                //             </td>
-                //         </tr>
-                //     }
-                // }
-            }
-
-            <tr>
-                <td>
-                    <p>@isLoading</p>
-                    <p>@imageBytes</p>
-                    <p>@isSelected</p>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<div class="container" id="imageBox">
+    <img id="image" />
 </div>
 
+@{
+    if(result != null)
+    {
+        <div class="container" id="resultTable">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Car</th>
+                        <th scope="col">Color</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var item in result.ColorList)
+                        {
+                            <tr>
+                                <td>
+                                    @item.CarScore
+                                </td>
+                                <td>
+                                    @item.Color
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
 @code {
-    public bool isLoading;
+    public bool isLoading { get; set; }
+
     public bool isSelected { get; set; }
+
+    public string fileInputLabel { get; set; }
 
     public byte[] imageBytes { get; set; }
 
-    public CarDetectorResult result;
-
-    private async Task HandleButtonClick()
-    {
-        await StartLoading();
-        await InvokeAsync(StateHasChanged);
-        await HandleSubmit();
-    }
+    public CarDetectorResult result { get; set; }
 
     private async Task HandleSubmit()
     {
@@ -103,17 +99,15 @@
 
         if (imageBytes != null)
         {
-            Console.WriteLine("Before");
             result = await _carDetectorUIService.CarDetector(imageBytes);
-            Console.WriteLine(result.ColorList);
+
+            if(result != null)
+            {
+                await SetImageAsync(result.Image);
+            }
         }
 
         isLoading = false;
-    }
-
-    private async Task StartLoading()
-    {
-        isLoading = true;
     }
 
     private async Task HandleFileChange(InputFileChangeEventArgs e)
@@ -122,6 +116,14 @@
         await e.File.OpenReadStream().CopyToAsync(ms);
         imageBytes = ms.ToArray();
 
+        fileInputLabel = e.File.Name;
+
         isSelected = true;
+    }
+
+    private async Task SetImageAsync(Stream imageStream)
+    {
+        var dotnetImageStream = new DotNetStreamReference(imageStream);
+        await JS.InvokeVoidAsync("setImage", "image", dotnetImageStream);
     }
 }

@@ -11,7 +11,7 @@ namespace BLL.Service
         /// Method for drawing detections and adding lable text such as score to the image. For now it also implements methods
         /// ModelResultFiltering for filtering the incoming ModelOutput data and ImageToBase64. 
         /// </summary>
-        public async Task<string> DrawAndLabelDetections(Image image, ModelFiltrationResult modelFiltrationResult)
+        public async Task<Image> DrawAndLabelDetections(Image image, ModelFiltrationResult modelFiltrationResult)
         {
             // Adding label and rectangle boundingbox on given coordinates
             using (Graphics graphics = Graphics.FromImage(image))
@@ -34,10 +34,7 @@ namespace BLL.Service
                 }
             }
 
-            // Remove this later, just for testing purposes
-            image.Save("C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage.Jpeg", ImageFormat.Jpeg);
-
-            return ImageToBase64(image);
+            return image;
         }
 
         /// <summary>
@@ -61,7 +58,7 @@ namespace BLL.Service
             Bitmap resizedImage = new Bitmap(targetWidth, targetHeight);
             using (Graphics graphics = Graphics.FromImage(resizedImage))
             {
-                graphics.FillRectangle(Brushes.Black, 0, 0, targetWidth, targetHeight);
+                graphics.FillRectangle(Brushes.White, 0, 0, targetWidth, targetHeight);
                 graphics.DrawImage(originalImage, padX, padY, scaledWidth, scaledHeight);
             }
             return resizedImage;
@@ -134,9 +131,6 @@ namespace BLL.Service
                             new Rectangle(0, 0, bitMap.Width, bitMap.Height),
                             new Rectangle(modelFiltrationResult.BoxList[i].X, modelFiltrationResult.BoxList[i].Y, modelFiltrationResult.BoxList[i].Width, modelFiltrationResult.BoxList[i].Height),
                             GraphicsUnit.Pixel);
-
-                        // Remove this later!
-                        bitMap.Save($"C:\\Users\\Joakim\\Desktop\\SaveTest\\CarDetectedImage{i}.Jpeg", ImageFormat.Jpeg);
                     }
 
                     var colorClassificationInput = new ColorClassificationInput()
@@ -182,8 +176,6 @@ namespace BLL.Service
 
         public async Task<Bitmap> BytearrayToBitmap(byte[] imageBytes)
         {
-            Console.WriteLine("Fromconvertion" + imageBytes.Length);
-
             Bitmap bitmap;
             using (var ms = new MemoryStream(imageBytes))
             {
@@ -191,6 +183,15 @@ namespace BLL.Service
             }
 
             return bitmap;
+        }
+
+        public async Task<Stream> ImageToStream(Image image)
+        {
+            MemoryStream ms = new MemoryStream();
+            image.Save(ms, ImageFormat.Jpeg);
+            ms.Position = 0;
+
+            return ms;
         }
     }
 }

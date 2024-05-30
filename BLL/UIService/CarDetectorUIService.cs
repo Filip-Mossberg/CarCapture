@@ -1,10 +1,5 @@
 ﻿using BLL.IService;
 using Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BLL.UIService
 {
@@ -29,11 +24,12 @@ namespace BLL.UIService
             var colorClassificationInput = await _imageService.CreateImagesOfDetectedCars(image, modelResultFiltered);
             var colorClassificationResult = await _colorClassificationService.ColorClassificationModel(colorClassificationInput);
             var imageResult = await _imageService.DrawAndLabelDetections(image, modelResultFiltered);
+            var streamImage = await _imageService.ImageToStream(imageResult);
 
             var carDetectorResult = new CarDetectorResult()
             {
                 ColorList = colorClassificationResult,
-                Image = imageResult
+                Image = streamImage
             };
 
             return carDetectorResult;
