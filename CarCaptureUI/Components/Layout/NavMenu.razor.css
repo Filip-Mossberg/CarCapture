@@ -1,0 +1,24 @@
+﻿#navBar {
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.navbar a {
+    text-decoration: none;
+}
+
+#navImage {
+    height: 60px;
+    cursor: pointer;
+}
+
+#documentation {
+    margin-top: 10px;
+    color: gray;
+}
+
+    #documentation:hover {
+        text-decoration-line: underline !important;
+        cursor: pointer;
+    }

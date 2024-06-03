@@ -9,18 +9,18 @@
 
 #customeImageUpload {
     cursor: pointer;
-    width: 350px;
-    height: 350px;
+    width: 300px;
+    height: 300px;
     border: 2px solid black;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #71A0EB;
+    color: #2F78C5;
     flex-direction: column;
 }
 
     #customeImageUpload:hover {
-        border: 3px solid #71A0EB;
+        border: 3px solid #2F78C5;
     }
 
 #titleLabel {
@@ -28,11 +28,15 @@
 }
 
 #fileLabel {
-    font-size: 10px;
+    font-size: 12px;
+    width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: center;
 }
 
 #formSubmit {
-    background-color: #71A0EB;
+    background-color: #2F78C5;
     width: 120px;
     height: 40px;
     border: none;
@@ -87,4 +91,23 @@
     margin-bottom: 250px;
     max-width: 800px;
     max-height: 800px;
+}
+
+@media (max-width: 1400px) {
+    #imageForm {
+        padding-top: 60px;
+    }
+
+    #customeImageUpload {
+        width: 250px;
+        height: 250px;
+    }
+
+    #titleLabel {
+        font-size: 22px;
+    }
+
+    #resultTable {
+        margin-bottom: 200px;
+    }
 }

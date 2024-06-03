@@ -13,6 +13,8 @@ namespace BLL.Service
         /// </summary>
         public async Task<Image> DrawAndLabelDetections(Image image, ModelFiltrationResult modelFiltrationResult)
         {
+            var customColor = Color.FromArgb(47, 120, 197);
+
             // Adding label and rectangle boundingbox on given coordinates
             using (Graphics graphics = Graphics.FromImage(image))
             {
@@ -27,10 +29,19 @@ namespace BLL.Service
                         graphics.DrawRectangle(new Pen(Color.Orange, 2), modelFiltrationResult.BoxList[i]);
                     }
 
+                    var textSize = graphics.MeasureString(modelFiltrationResult.LabelList[i] + ": " + modelFiltrationResult.ScoreList[i], new Font("Arial", 14, FontStyle.Bold));
+
+                    graphics.FillRectangle(new SolidBrush(customColor), new Rectangle() {
+                        X = modelFiltrationResult.TopLeftCoordinatesList[i + i],
+                        Y = modelFiltrationResult.TopLeftCoordinatesList[i + i + 1] - 24,
+                        Width = (int)textSize.Width,
+                        Height = (int)textSize.Height
+                    });
+
                     graphics.DrawString(modelFiltrationResult.LabelList[i] + ": " + modelFiltrationResult.ScoreList[i],
-                        new Font("Arial", 14), new SolidBrush(Color.HotPink),
+                        new Font("Arial", 14, FontStyle.Bold), new SolidBrush(Color.White),
                         modelFiltrationResult.TopLeftCoordinatesList[i + i],
-                        modelFiltrationResult.TopLeftCoordinatesList[i + i + 1] - 22);
+                        modelFiltrationResult.TopLeftCoordinatesList[i + i + 1] - 24);
                 }
             }
 
@@ -78,7 +89,7 @@ namespace BLL.Service
             for (int i = 0; i < modelResult.PredictedLabel.Count() * 4; i += 4)
             {
                 // Filter by score
-                if (modelResult.Score[i / 4] > 0.6F)
+                if (modelResult.Score[i / 4] > 0.7F)
                 {
                     // Coordinates for top left and bottom right corner of the rectangle
                     var x1 = (int)modelResult.PredictedBoundingBoxes[i];
